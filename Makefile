@@ -10,7 +10,7 @@ render: render.o
 	$(CC) -c $< $(CFLAGS)
 
 run: render
-	./render
+	./render > output.pmb
 
 clean:
 	rm -f render *.o *~

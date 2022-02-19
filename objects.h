@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define EMPTY ' '
-#define POINT 'x'
-
 typedef struct Grid {
     int x_min;
     int x_max;

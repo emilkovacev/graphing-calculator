@@ -2,6 +2,16 @@
 #include <stdarg.h>
 #include "objects.h"
 
+#define EMPTY ' '
+#define POINT 'x'
+#define BORDER '+'
+
+#define PBM_EMPTY 0
+#define PBM_POINT 1
+#define PBM_BORDER 1
+#define PBM_GRID 1
+
+
 // create a point structure with coordinates (x, y)
 Point new_point(int x, int y);
 
@@ -17,14 +27,23 @@ Line new_line(double slope, int x0);
 // initialize a Line on Grid g)
 int init_line(Line l, Grid g);
 
+// define a new polynomial
 Polynomial new_poly(int degree, double *coef);
 
+// define polynomial with args
+Polynomial new_poly_args(int degree, ...);
+
+// initialize Polynomial p on Graph g
 int init_poly(Polynomial p, Grid g);
 
+// initialize a new grid
 Grid new_grid(int x_min, int x_max, int y_min, int y_max);
 
 // render the initialized grid
 void render(Grid grid);
+
+// render grid in PBM file format
+int render_pbm(Grid g);
 
 
 Point new_point(int x, int y) {
@@ -81,20 +100,17 @@ Polynomial new_poly_args(int degree, ...) {
     va_list valist;
     va_start(valist, degree);
 
-    printf("degree: %i\n", degree);
-    p.coef = malloc(degree * sizeof(double));
-    for (int i = 0; i < degree; i++) {
+    p.coef = malloc((degree+1) * sizeof(double));
+    for (int i = 0; i <= degree; i++) {
         p.coef[i] = va_arg(valist, double);
-        printf("coef[%i] = %lf\n", i, p.coef[i]);
     }
     return p;
 }
 
 int calc_poly(double x, Polynomial p) {
-    printf("%lf", x);
     int total = 0;
     
-    for (int i = 0; i < p.degree; i++) {
+    for (int i = 0; i <= p.degree; i++) {
         double c = i;
         total += pow(x, c) * p.coef[i];
     }
@@ -104,7 +120,6 @@ int calc_poly(double x, Polynomial p) {
 int init_poly(Polynomial p, Grid g) {
     for (int x = g.x_min; x < g.x_max; x++) {
         int y = calc_poly(x, p);
-        printf("(%i, %i)\n", x, y);
         if (y >= g.y_min && y < g.y_max) {
             Point pt = new_point(x, y);
             init_pt(pt, g);
@@ -145,11 +160,33 @@ void render(Grid g) {
         for (int j = 0; j < g.x_range; j++) {
             if (i == 0 || i == g.y_range - 1 ||
                 j == 0 || j == g.x_range - 1) {
-                printf("+");
+                printf("%c", BORDER);
             } else {
                 printf("%c", g.array[i][j]);
             }
         }
         printf("\n");
     }
+}
+
+int render_pbm(Grid g) {
+    /* if (g.x_range >= 70) return -1; */
+    printf("P1 %i %i\n", g.x_range, g.y_range);
+    for (int i = g.y_range - 1; i >= 0; i--) {
+        for (int j = 0; j < g.x_range; j++) {
+            if (i == 0 || i == g.y_range - 1 ||
+                j == 0 || j == g.x_range - 1) {
+                printf("%i", PBM_BORDER);
+            } else if (i == g.y_range / 2 ||
+                       j == g.x_range / 2) {
+                printf("%i", PBM_POINT);
+            } else if (g.array[i][j] == POINT) {
+                printf("%i", PBM_POINT);
+            } else {
+                printf("%i", PBM_EMPTY);
+            }
+        }
+        printf("\n");
+    }
+    return 0;
 }
