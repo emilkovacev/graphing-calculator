@@ -10,6 +10,6 @@ render: render.o
 	$(CC) -c $< $(CFLAGS)
 
 clean:
-	rm -f rldecode *.o *~ rldecode.tar $(TESTS)
+	rm -f render *.o *~
 
 .PHONY: all clean submission
