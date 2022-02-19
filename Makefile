@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -O -Wall -Werror -std=c99 -D_DEFAULT_SOURCE
+CFLAGS := -O -Wall -Werror -std=c99 -D_DEFAULT_SOURCE -ggdb
 
 all: render
 
@@ -8,6 +8,9 @@ render: render.o
 
 %.o: %.c
 	$(CC) -c $< $(CFLAGS)
+
+run: render
+	./render
 
 clean:
 	rm -f render *.o *~

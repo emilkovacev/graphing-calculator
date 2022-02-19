@@ -4,14 +4,15 @@
 #include "objects.c"
 
 int main(int argc, char *argv[]) {
-    Grid g = new_grid(0, 100, 0, 100);
+    Grid g = new_grid(-50, 50, -20, 20);
 
-    double *coef = malloc(3*sizeof(double));
-    coef[0] = 15.0; coef[1] = -10.0; coef[2] = 2.0;
-    Polynomial p1 = new_poly(3, coef);
-    
+    Polynomial p1 = new_poly_args(4, 0.0, 0.0, 0.0, 0.05);
     init_poly(p1, g);
+
+    Polynomial p2 = new_poly_args(4, 0.0, -3.0, 0.0, 0.01);
+    init_poly(p2, g);
 
     render(g);
     return 0;
 }
+

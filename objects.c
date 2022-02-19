@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdarg.h>
 #include "objects.h"
 
 // create a point structure with coordinates (x, y)
@@ -74,8 +75,25 @@ Polynomial new_poly(int degree, double *coef) {
     return p;
 }
 
+Polynomial new_poly_args(int degree, ...) {
+    Polynomial p;
+    p.degree = degree;
+    va_list valist;
+    va_start(valist, degree);
+
+    printf("degree: %i\n", degree);
+    p.coef = malloc(degree * sizeof(double));
+    for (int i = 0; i < degree; i++) {
+        p.coef[i] = va_arg(valist, double);
+        printf("coef[%i] = %lf\n", i, p.coef[i]);
+    }
+    return p;
+}
+
 int calc_poly(double x, Polynomial p) {
+    printf("%lf", x);
     int total = 0;
+    
     for (int i = 0; i < p.degree; i++) {
         double c = i;
         total += pow(x, c) * p.coef[i];
@@ -87,9 +105,10 @@ int init_poly(Polynomial p, Grid g) {
     for (int x = g.x_min; x < g.x_max; x++) {
         int y = calc_poly(x, p);
         printf("(%i, %i)\n", x, y);
-        if (y >= g.y_max || y < g.y_min) continue;
-        Point pt = new_point(x, y);
-        init_pt(pt, g);
+        if (y >= g.y_min && y < g.y_max) {
+            Point pt = new_point(x, y);
+            init_pt(pt, g);
+        }
     }
     return 0;
     
