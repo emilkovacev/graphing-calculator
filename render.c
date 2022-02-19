@@ -3,17 +3,15 @@
 
 #include "objects.c"
 
-#define EMPTY ' '
-#define POINT 'x'
-
-
 int main(int argc, char *argv[]) {
-    Grid g = new_grid(0, 10, 0, 10);
+    Grid g = new_grid(0, 100, 0, 100);
+
+    double *coef = malloc(3*sizeof(double));
+    coef[0] = 15.0; coef[1] = -10.0; coef[2] = 2.0;
+    Polynomial p1 = new_poly(3, coef);
     
-    /* init_line(3, 0, grid); */
-    /* init_line(-0.03, 12, grid); */
+    init_poly(p1, g);
+
     render(g);
     return 0;
 }
-
-

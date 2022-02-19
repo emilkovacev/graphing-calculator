@@ -1,3 +1,4 @@
+#include <math.h>
 #include "objects.h"
 
 // create a point structure with coordinates (x, y)
@@ -15,6 +16,10 @@ Line new_line(double slope, int x0);
 // initialize a Line on Grid g)
 int init_line(Line l, Grid g);
 
+Polynomial new_poly(int degree, double *coef);
+
+int init_poly(Polynomial p, Grid g);
+
 Grid new_grid(int x_min, int x_max, int y_min, int y_max);
 
 // render the initialized grid
@@ -30,20 +35,22 @@ Point new_point(int x, int y) {
 
 int init_pt(struct Point pt, Grid g) {
     if (check_point(pt, g) != 0) return -1;
-    g.array[pt.y][pt.x] = POINT;
+    int x = pt.x - g.x_min;
+    int y = pt.y - g.y_min;
+    g.array[y][x] = POINT;
     return 0;
 }
 
 int check_point(Point p, Grid g) {
-    if ((p.x > g.x_min && p.x < g.x_max) &&
-        (p.y > g.y_min && p.y < g.y_max)) {
+    if ((p.x >= g.x_min && p.x < g.x_max) &&
+        (p.y >= g.y_min && p.y < g.y_max)) {
         return 0;
     } else {
         return -1;
     }
 }
 
-Line line(double slope, int b) {
+Line new_line(double slope, int b) {
     Line l;
     l.slope = slope;
     l.b = b;
@@ -51,13 +58,41 @@ Line line(double slope, int b) {
 }
 
 int init_line(Line l, Grid g) {
-    for (int x = 0; x < g.x_range; x++) {
+    for (int x = g.x_min; x < g.x_max; x++) {
         int y = (l.slope * x) + l.b;
+        if (y >= g.y_max) continue;
         Point pt = new_point(x, y);
-        int error = init_pt(pt, g);
-        if (error) return -1;
+        init_pt(pt, g);
     }
     return 0;
+}
+
+Polynomial new_poly(int degree, double *coef) {
+    Polynomial p;
+    p.degree = degree;
+    p.coef = coef;
+    return p;
+}
+
+int calc_poly(double x, Polynomial p) {
+    int total = 0;
+    for (int i = 0; i < p.degree; i++) {
+        double c = i;
+        total += pow(x, c) * p.coef[i];
+    }
+    return total;
+}
+
+int init_poly(Polynomial p, Grid g) {
+    for (int x = g.x_min; x < g.x_max; x++) {
+        int y = calc_poly(x, p);
+        printf("(%i, %i)\n", x, y);
+        if (y >= g.y_max || y < g.y_min) continue;
+        Point pt = new_point(x, y);
+        init_pt(pt, g);
+    }
+    return 0;
+    
 }
 
 
@@ -89,7 +124,12 @@ Grid new_grid(int x_min, int x_max, int y_min, int y_max) {
 void render(Grid g) {
     for (int i = g.y_range - 1; i >= 0; i--) {
         for (int j = 0; j < g.x_range; j++) {
-            printf("%c", g.array[i][j]);
+            if (i == 0 || i == g.y_range - 1 ||
+                j == 0 || j == g.x_range - 1) {
+                printf("+");
+            } else {
+                printf("%c", g.array[i][j]);
+            }
         }
         printf("\n");
     }
